@@ -4,7 +4,15 @@
 #include <unistd.h>  
 #include <pthread.h>  
 #include <signal.h>  
-  
+
+/**
+  * @brief The Posix Thread Number to be created 
+  */
+#define PT_THREADNUM 3 
+
+/**
+  * @brief The Global Running Thread Counter 
+  */
 unsigned int thread_running = 0;  
 
 /**
@@ -14,10 +22,8 @@ unsigned int thread_running = 0;
 void* start_function(void* value)  
 { 
     printf("[Thread %d] Started\n", *(int*)(value)); 
-    //printf("%s is now entering the thread function.\n", (char*)value);  
     sleep(4);  
     printf("[Thread %d] Finished\n", *(int*)(value)); 
-    //printf("%s is now leaving the thread function.\n", (char*)value);  
     thread_running--; 
     pthread_exit(value); 
 }  
@@ -36,18 +42,22 @@ int main(int argc, char** argv)
         exit(EXIT_FAILURE);  
     }
     
-    //** Setting the Detached State 
+    //** Setting the Detached State in the Attribute Structure 
     res = pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);  
     if (res != 0) {  
         perror("Setting detached state failed");  
         exit(EXIT_FAILURE);  
     }  
     
-    //** Creating the Thread with the Detached State 
+    //** Creating the Set of Threads with the Detached State 
+    //** Note: This Thread is not joinable hence another mechanism is needed to detect their finish. In this case a global counter is used 
     for(int i=0; i<3; ++i)
     {
+        //** Stores the different Thread IDs 
         temp[i] = i; 
+        //** Increments the Global Running Threads Counter 
         thread_running++; 
+        //** Creates the Thread with the Detached State 
         res = pthread_create(&thread1[i], &attr, start_function, (void*)&temp[i]);  
         if (res != 0) {  
             perror("Creation of thread failed");  
@@ -55,7 +65,7 @@ int main(int argc, char** argv)
         }  
     }
     
-    //** Waiting for the Thread to finish 
+    //** Waiting for the all the Threads to finish checking the Global Running Threads Counter 
     while(thread_running > 0) {  
         printf("Waiting for %d threads to finish\n", thread_running);  
         sleep(1);  
@@ -64,3 +74,4 @@ int main(int argc, char** argv)
     printf("All threads finished\n");      
     pthread_attr_destroy(&attr);  
 }  
+
