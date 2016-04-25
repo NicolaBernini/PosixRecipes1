@@ -1,3 +1,10 @@
+/**
+  * @file detached_threads1.c 
+  * @brief This example shows how it is possible to use Posix to create Detached Threads and how to wait for their completation in an asynchronous way 
+  * @note The result is similar to what could have been done in a synchronous way with join() appunto 
+  * @note To see it running http://coliru.stacked-crooked.com/a/daa73e98f71abaa8 
+  */
+
 #include <stdio.h>    
 #include <string.h>    
 #include <stdlib.h>  
